@@ -1,0 +1,31 @@
+version: '3.3'
+services:
+  jenkins-docker:
+    image: adrianokowalski/jenkins:2.2.0
+    environment:
+      - JENKINS_OPTS="--prefix=/jenkins"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "fs_jenkins_home:/var/jenkins_home"
+      - "fs_maven:/root/.m2"
+    networks:
+      - webgateway
+    deploy:
+      placement:
+        constraints: [node.hostname == srv53]
+      labels:
+        - "traefik.enable=true"
+        - "traefik.port=8080"
+        - "traefik.docker.network=webgateway"
+        - "traefik.frontend.rule=Host:10.100.10.115;PathPrefix:/jenkins"
+
+volumes:
+ fs_jenkins_home:
+  external: true
+ fs_maven:
+  external: true
+
+networks:
+  webgateway:
+    driver: overlay
+    external: true
