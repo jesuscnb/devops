@@ -1,0 +1,26 @@
+version: '2.1'
+services:
+  npm_lazy:
+    image: adrianokowalski/npm_lazy:latest
+    container_name: npm_lazy
+    volumes:
+      - "fs_npm:/cache"
+    networks:
+      - webgateway
+    deploy:
+      placement:
+        constraints: [node.hostname == srv53]
+      labels:
+        - "traefik.enable=true"
+        - "traefik.port=8080"
+        - "traefik.docker.network=webgateway"
+        - "traefik.frontend.rule=Host:10.100.10.115;PathPrefix:/registry"
+volumes:
+ fs_npm:
+  external: true
+
+networks:
+  webgateway:
+    driver: overlay
+    external: true      
+
